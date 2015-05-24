@@ -1,0 +1,52 @@
+---
+driver:
+  name: vagrant
+  network:
+    - ["forwarded_port", {guest: 80, host: 8080}]
+    - ["private_network", {ip: "192.168.33.33"}]
+  synced_folders:
+    - ['../customer_repo','/var/customer_repo']
+  customize:
+    memory: 1024
+driver_config:
+  require_chef_omnibus: '12.2.1'
+
+provisioner:
+  name: chef_zero
+  data_bag_path: 'test/integration/data_bags'
+  encrypted_data_bag_secret_key_path: '../.chef/encrypted_data_bag_secret'
+  client_rb: 
+    environment: production
+  attributes:
+    customer_namespace:
+      ssl_cert: '/etc/httpd/ssl/customer.com.crt'
+      ssl_key: '/etc/httpd/ssl/customer.com.key'
+      ssl_bundle: '/etc/httpd/ssl/customer.com.ca'
+      re_deploy:
+        this: false
+        that: false
+        other: false
+      api_deploy:
+        that: false
+      yyy_reploy:
+        that: false
+      xxx_deploy:
+        that: false
+      zzz_deploy:
+        that: false 
+    kitchen: true 
+    authorization:
+      sudo:
+        users: ['vagrant']
+        passwordless: true
+    firewall:
+      allow_ssh: true
+platforms:
+  - name: centos-6.6
+    run_list:
+      - recipe[firewall::default]
+suites:
+  - name: prd-api-app
+    run_list:
+      - recipe[111111-customer::customer_app]
+    attributes: {}
